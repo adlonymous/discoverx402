@@ -7,6 +7,7 @@ import (
 
 	httpapi "github.com/adlonymous/discoverx402/internal/http"
 	"github.com/adlonymous/discoverx402/internal/mirror"
+	"github.com/adlonymous/discoverx402/internal/p2p"
 	"github.com/adlonymous/discoverx402/internal/state"
 )
 
@@ -24,6 +25,21 @@ func main() {
 	if getenv("SEED_ONCE", "") == "1" {
 		if err := mirror.SeedOnce(context.Background(), seedURL, repo); err != nil {
 			log.Printf("seed failed: %v", err)
+		}
+	}
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	bootstrap := getenv("P2P_BOOTSTRAP", "")
+	node, err := p2p.Start(ctx, repo, bootstrap)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	if existing, err := repo.List(ctx); err == nil {
+		for _, l := range existing {
+			_ = node.Publish(ctx, l)
 		}
 	}
 
