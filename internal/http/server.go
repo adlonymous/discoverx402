@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	"github.com/adlonymous/discoverx402/internal/state"
+	"github.com/adlonymous/discoverx402/internal/types"
 )
 
 type Server struct {
@@ -18,6 +19,7 @@ type Server struct {
 func New(addr string, repo *state.Repo) *Server {
 	s := &Server{addr: addr, mux: http.NewServeMux(), repo: repo}
 	s.mux.HandleFunc("/list", s.handleList)
+	s.mux.HandleFunc("/listings", s.handleUpsertListing)
 	s.mux.HandleFunc("/healthz", s.handleHealth)
 	return s
 }
@@ -35,6 +37,29 @@ func (s *Server) handleList(w http.ResponseWriter, _ *http.Request) {
 		return
 	}
 	_ = json.NewEncoder(w).Encode(listings)
+}
+
+func (s *Server) handleUpsertListing(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+
+	var l types.Listing
+	dec := json.NewDecoder(r.Body)
+	dec.DisallowUnknownFields()
+	if err := dec.Decode(&l); err != nil {
+		http.Error(w, "invalid JSON: "+err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	if err := s.repo.Upsert(context.Background(), l); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	w.WriteHeader(http.StatusCreated)
+	_ = json.NewEncoder(w).Encode(map[string]any{"status": "ok"})
 }
 
 func (s *Server) handleHealth(w http.ResponseWriter, _ *http.Request) { w.WriteHeader(http.StatusOK) }

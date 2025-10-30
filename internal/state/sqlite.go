@@ -40,7 +40,15 @@ func OpenSQLite(path string) (*Repo, error) {
 
 	if err := migrate(db); err != nil {
 		_ = db.Close()
-		return nil, err
+		dsn = fmt.Sprintf("file:%s?_pragma=journal_mode(DELETE)&_pragma=busy_timeout(5000)", path)
+		db, err = sql.Open("sqlite", dsn)
+		if err != nil {
+			return nil, err
+		}
+		if err := migrate(db); err != nil {
+			_ = db.Close()
+			return nil, err
+		}
 	}
 
 	return &Repo{db: db}, nil
