@@ -12,5 +12,8 @@ run:
 clean:
 	rm -rf bin
 
+clean-db:
+	rm -rf data/x402.db
+
 test:
 	curl -X GET http://localhost:8080/list

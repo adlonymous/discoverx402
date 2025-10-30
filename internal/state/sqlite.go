@@ -131,7 +131,7 @@ func (r *Repo) List(ctx context.Context) ([]types.Listing, error) {
 	}
 	defer rows.Close()
 
-	var out []types.Listing
+	out := make([]types.Listing, 0)
 	for rows.Next() {
 		var id, resource, typ, lastUpdated, metaJSON string
 		var ver int
@@ -146,7 +146,7 @@ func (r *Repo) List(ctx context.Context) ([]types.Listing, error) {
 		if err != nil {
 			return nil, err
 		}
-		var accepts []types.Accept
+		accepts := make([]types.Accept, 0)
 		for aRows.Next() {
 			var a types.Accept
 			var outJSON, extraJSON, mime, desc sql.NullString
