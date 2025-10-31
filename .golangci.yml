@@ -1,0 +1,50 @@
+version: 2
+
+linters-settings:
+  errcheck:
+    check-type-assertions: true
+    check-blank: true
+  govet:
+    check-shadowing: true
+  gocyclo:
+    min-complexity: 15
+  misspell:
+    locale: US
+  revive:
+    min-confidence: 0.9
+    rules:
+      - name: exported
+        severity: warning
+      - name: var-declaration
+        severity: warning
+      - name: package-comments
+        severity: warning
+      - name: range
+        severity: warning
+      - name: if-return
+        severity: warning
+
+linters:
+  enable:
+    - errcheck
+    - govet
+    - ineffassign
+    - staticcheck
+    - unused
+    - misspell
+    - revive
+    - gocyclo
+
+issues:
+  exclude-rules:
+    - path: _test\.go
+      linters:
+        - errcheck
+        - gocyclo
+    - path: internal/types/listing\.go
+      text: "avoid meaningless package names"
+      linters:
+        - revive
+  max-issues-per-linter: 0
+  max-same-issues: 0
+

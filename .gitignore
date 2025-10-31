@@ -4,3 +4,4 @@
 .env 
 /dataA/
 /dataB/
+test-gossip.sh

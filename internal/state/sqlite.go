@@ -97,7 +97,9 @@ func (r *Repo) Upsert(ctx context.Context, l types.Listing) error {
 	if err != nil {
 		return err
 	}
-	defer tx.Rollback()
+	defer func() {
+		_ = tx.Rollback()
+	}()
 
 	_, err = tx.ExecContext(ctx, `
 INSERT INTO listings(id, resource, type, x402_version, last_updated, metadata_json)
@@ -137,7 +139,9 @@ func (r *Repo) List(ctx context.Context) ([]types.Listing, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
+	defer func() {
+		_ = rows.Close()
+	}()
 
 	out := make([]types.Listing, 0)
 	for rows.Next() {
@@ -149,7 +153,6 @@ func (r *Repo) List(ctx context.Context) ([]types.Listing, error) {
 		meta := map[string]any{}
 		_ = json.Unmarshal([]byte(metaJSON), &meta)
 
-		// load accepts
 		aRows, err := r.db.QueryContext(ctx, `SELECT asset,network,scheme,pay_to,max_amount_required,max_timeout_seconds,mime_type,output_schema_json,description,extra_json,resource FROM accepts WHERE listing_id=?`, id)
 		if err != nil {
 			return nil, err
@@ -159,7 +162,7 @@ func (r *Repo) List(ctx context.Context) ([]types.Listing, error) {
 			var a types.Accept
 			var outJSON, extraJSON, mime, desc sql.NullString
 			if err := aRows.Scan(&a.Asset, &a.Network, &a.Scheme, &a.PayTo, &a.MaxAmountRequired, &a.MaxTimeoutSeconds, &mime, &outJSON, &desc, &extraJSON, &a.Resource); err != nil {
-				aRows.Close()
+				_ = aRows.Close()
 				return nil, err
 			}
 			if mime.Valid {
@@ -180,7 +183,7 @@ func (r *Repo) List(ctx context.Context) ([]types.Listing, error) {
 			}
 			accepts = append(accepts, a)
 		}
-		aRows.Close()
+		_ = aRows.Close()
 
 		out = append(out, types.Listing{
 			Accepts: accepts, LastUpdated: lastUpdated, Metadata: meta,

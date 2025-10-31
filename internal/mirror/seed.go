@@ -22,7 +22,9 @@ func SeedOnce(ctx context.Context, url string, repo *state.Repo) error {
 	if err != nil {
 		return err
 	}
-	defer resp.Body.Close()
+	defer func() {
+		_ = resp.Body.Close()
+	}()
 	if resp.StatusCode != 200 {
 		body, _ := io.ReadAll(resp.Body)
 		return fmt.Errorf("seed: non-200 status %d from %s: %s", resp.StatusCode, url, string(body))

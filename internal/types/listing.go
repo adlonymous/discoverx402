@@ -1,41 +1,40 @@
-package types
+package types //nolint:revive
 
 type Listing struct {
-	Accepts     []Accept        `json:"accepts"`
-	LastUpdated string          `json:"lastUpdated"`       // RFC3339 string
-	Metadata    map[string]any  `json:"metadata"`          // can be empty object
-	Resource    string          `json:"resource"`          // main resource URL
-	Type        string          `json:"type"`              // e.g., "http"
-	X402Version int             `json:"x402Version"`       // e.g., 1
-	BazaarExt   map[string]any  `json:"bazaarExt,omitempty"` // your optional extensions
+	Accepts     []Accept       `json:"accepts"`
+	LastUpdated string         `json:"lastUpdated"`
+	Metadata    map[string]any `json:"metadata"`
+	Resource    string         `json:"resource"`
+	Type        string         `json:"type"`
+	X402Version int            `json:"x402Version"`
+	BazaarExt   map[string]any `json:"bazaarExt,omitempty"`
 }
 
-
 type Accept struct {
-	Asset             string        `json:"asset"`                       // token address or identifier
-	Description       string        `json:"description,omitempty"`       // optional
-	Extra             *AcceptExtra  `json:"extra,omitempty"`             // optional
-	MaxAmountRequired string        `json:"maxAmountRequired"`           // atomic units
-	MaxTimeoutSeconds int           `json:"maxTimeoutSeconds"`           // seconds
-	MimeType          string        `json:"mimeType,omitempty"`          // expected response MIME type
-	Network           string        `json:"network"`                     // e.g., "base"
-	OutputSchema      *OutputSchema `json:"outputSchema,omitempty"`      // optional
-	PayTo             string        `json:"payTo"`                       // payment address
-	Resource          string        `json:"resource"`                    // actual paid endpoint (duplicate of top-level OK)
-	Scheme            string        `json:"scheme"`                      // e.g., "exact"
+	Asset             string        `json:"asset"`
+	Description       string        `json:"description,omitempty"`
+	Extra             *AcceptExtra  `json:"extra,omitempty"`
+	MaxAmountRequired string        `json:"maxAmountRequired"`
+	MaxTimeoutSeconds int           `json:"maxTimeoutSeconds"`
+	MimeType          string        `json:"mimeType,omitempty"`
+	Network           string        `json:"network"`
+	OutputSchema      *OutputSchema `json:"outputSchema,omitempty"`
+	PayTo             string        `json:"payTo"`
+	Resource          string        `json:"resource"`
+	Scheme            string        `json:"scheme"`
 }
 
 type AcceptExtra struct {
-	Name    string `json:"name,omitempty"`    // e.g., "USD Coin"
-	Version string `json:"version,omitempty"` // e.g., "2"
+	Name    string `json:"name,omitempty"`
+	Version string `json:"version,omitempty"`
 }
 
 type OutputSchema struct {
 	Input  OutputInput `json:"input"`
-	Output any         `json:"output"` // null or a schema object
+	Output any         `json:"output"`
 }
 
 type OutputInput struct {
-	Method string `json:"method"` // "GET", "POST", etc.
-	Type   string `json:"type"`   // typically "http"
+	Method string `json:"method"`
+	Type   string `json:"type"`
 }

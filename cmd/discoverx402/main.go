@@ -19,7 +19,11 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer repo.Close()
+	defer func() {
+		if err := repo.Close(); err != nil {
+			log.Printf("error closing repo: %v", err)
+		}
+	}()
 
 	seedURL := getenv("SEED_URL", "")
 	if getenv("SEED_ONCE", "") == "1" {
@@ -43,7 +47,7 @@ func main() {
 		}
 	}
 
-	srv := httpapi.New(addr, repo)
+	srv := httpapi.New(addr, repo, node)
 	log.Fatal(srv.Start())
 }
 
